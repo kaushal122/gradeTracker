@@ -2,21 +2,12 @@
     "classroom": "B.Tech",
     "students": [
         {
-            "name": "Kaushal",
+            "name": "Rinla",
             "rollnumber": 1,
             "marks": [
                 89,
                 99,
-                100
-            ]
-        },
-        {
-            "name": "Rinla",
-            "rollnumber": 2,
-            "marks": [
-                99,
-                98,
-                88
+                89
             ]
         }
     ]

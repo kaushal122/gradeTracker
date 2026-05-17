@@ -1,5 +1,5 @@
-# Scholarsip elegibility
-from studentClass import Student
+# Scholarsip eligibility
+from models.studentClass import Student
 
 class ScholarshipStudent(Student):
     @property

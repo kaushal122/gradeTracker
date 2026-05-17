@@ -1,7 +1,7 @@
 #ClassRoom
-from studentClass import Student
-from ScholarshipStudentClass import ScholarshipStudent
-import json
+from models.studentClass import Student
+from models.ScholarshipStudentClass import ScholarshipStudent
+
 
 class ClassRoom:
 
@@ -42,55 +42,10 @@ class ClassRoom:
         else:
             return topper
 
-    def save_to_file(self,fileName="classRoom.json"):
-        data={
-            "classroom": self.name,
-            "students":[
-                {
-                    "name":student.name,
-                    "rollnumber":student.rollnumber,
-                    "marks":student.getMarks()
-                    
-                }
-                for student in self.__students
-            ]
-        }
-        with open (fileName, "w") as f:
-            json.dump(data,f, indent=4)
-        print(f"Saved to file {fileName}")
-
-
-    def load_from_file(self, fileName="classRoom.json"):
-        try:
-            with open(fileName,"r") as f:
-                data=json.load(f)
-            self.__students=[]
-            
-            for student in data["students"]:
-                newStudent=Student(student["name"], student["rollnumber"])
-                for mark in student["marks"]:
-                    newStudent.addMarks(mark)
-                self.__students.append(newStudent)
-            print(f"Loaded {len(self.__students)} students from {fileName}")
-        except FileNotFoundError:
-            print(f"No file found: {fileName}")
-        except json.JSONDecodeError:
-            print("File is corrupted or not valid JSON")
-
-
-
-if __name__ == "__main__":
-    class1= ClassRoom("B.Tech",[])
-
-    class1.enroll()
+    def getStudents(self):
+        return self.__students
     
-    print("topper",class1.classTopper)
+    def setStudents(self, students):
+        self.__students=students
 
-    class1.save_to_file()
 
-    class2 = ClassRoom("Loaded Class", [])
-    class2.load_from_file()
-
-    print("\n--- class2 (loaded from file) ---")
-    class2.show_All_Results()
-    print("topper", class2.classTopper)
