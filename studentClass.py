@@ -10,7 +10,7 @@ class Student:
             self.__marks.append(mark)
             return 1
         else:
-            print(f"Invalide mark: {mark}")
+            print(f"Invalid mark: {mark}")
             return 0
     
     def getMarks(self):
@@ -20,7 +20,7 @@ class Student:
         sum=0
         for mark in self.__marks:
             sum+=mark
-        return sum//(len(self.__marks))
+        return sum/(len(self.__marks))
     @property
     def getPer(self):
         sm=sum(self.__marks)
@@ -28,9 +28,9 @@ class Student:
         return (sm*100)//sub
     @property
     def getGrade(self):
-        if self.getPer>60:
+        if self.getPer>=60:
             return "First"
-        elif self.getPer>50:
+        elif self.getPer>=50:
             return "Second"
         else:
             return "Better Luck Next Time"

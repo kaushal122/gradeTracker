@@ -3,7 +3,7 @@ from studentClass import Student
 
 class ScholarshipStudent(Student):
     @property
-    def isElegible(self):
+    def isEligible(self):
         if self.getGrade=="First":
             return "Yes"
         else:
