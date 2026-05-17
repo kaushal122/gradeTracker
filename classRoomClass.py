@@ -42,10 +42,12 @@ class ClassRoom:
         else:
             return topper
 
-    def getStudents(self):
+    @property
+    def students(self):
         return self.__students
     
-    def setStudents(self, students):
-        self.__students=students
+    @students.setter
+    def students(self, students):
+        self.__students = students
 
 

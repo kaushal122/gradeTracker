@@ -14,14 +14,14 @@ class StorageJSON:
                     "marks":student.getMarks()
                     
                 }
-                for student in classRoom.getStudents()
+                for student in classRoom.students
             ]
         }
         with open (fileName, "w") as f:
             json.dump(data,f, indent=4)
         print(f"Saved to file {fileName}")
 
-
+    @staticmethod
     def load_from_file(classRoom, fileName="classRoom.json"):
         try:
             with open(fileName,"r") as f:
@@ -34,7 +34,7 @@ class StorageJSON:
                     newStudent.addMarks(mark)
                 students.append(newStudent)
             
-            classRoom.setStudents(students)
+            classRoom.students=students
 
             print(f"Loaded {len(students)} students from {fileName}")
         except FileNotFoundError:
