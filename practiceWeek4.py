@@ -18,3 +18,10 @@ print(data1["name"], data1["email"],data1["address"]["city"])
 load_dotenv()
 key=os.getenv("MY_API_KEY")
 print(key)
+data2={
+    "title":" my first post",
+    "body":"Hello World",
+    "id":1
+}
+post=requests.post("https://jsonplaceholder.typicode.com/posts",json=data2)
+print(post.json())
