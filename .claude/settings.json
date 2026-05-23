@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(src/**)",
+      "Edit(src/**)",
+      "Bash(python*)",
+      "Bash(pytest*)",
+      "Bash(git diff)",
+      "Bash(git status)",
+      "Bash(git add*)",
+      "Bash(git commit*)"
+    ],
+    "deny": [
+      "Bash(rm*)",
+      "Bash(sudo*)",
+      "Bash(chmod*)",
+      "Bash(curl*)",
+      "Bash(wget*)",
+      "Read(.env*)"
+    ]
+  }
+}
