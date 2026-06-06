@@ -2,6 +2,9 @@ from models.studentClass import Student
 from models.ScholarshipStudentClass import ScholarshipStudent
 from classRoomClass import ClassRoom
 from storage.jsonStorage import StorageJSON
+import requests
+from dotenv import load_dotenv
+import os
 
 if __name__ == "__main__":
     class1= ClassRoom("B.Tech",[])
@@ -18,3 +21,10 @@ if __name__ == "__main__":
     print("\n--- class2 (loaded from file) ---")
     class2.show_All_Results()
     print("topper", class2.classTopper)
+
+    url="https://official-joke-api.appspot.com/random_joke"
+
+    joke=requests.get(url).json()
+
+    #print(type(joke))
+    print("Joke for Toppper:----> ",joke["setup"])
