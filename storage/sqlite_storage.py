@@ -32,7 +32,7 @@ def save_student(db_path:str,student:Student) ->None:
     conn.commit()
     conn.close()
 
-s=Student("Rinla",3)
+s=Student("Rinla9",14)
 s.addMarks(85)
 s.addMarks(90)
 s.addMarks(99)
@@ -51,9 +51,57 @@ def load_all_students(db_path:str)->list:
     )
     
     rows=cursor.fetchall()
-    print(rows)
+    data=[]
+    for elem in rows:
+        name=elem[0]
+        rollnumb=elem[1]
+        marks=[int(m) for m in elem[2].split(",")]
+        temp=Student(name,rollnumb)
+        for mark in marks:
+            temp.addMarks(mark)
+        data.append(temp)
+       
+   # print(rows)
+    
+    conn.commit()
+    conn.close()
+    return data
+
+data=load_all_students("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db")
+for st in data:
+    print(st.name,st.rollnumber)
+
+
+def delete_student(db_path:str,rollnumber:int)->None:
+    conn=sqlite3.connect(db_path)
+    cursor=conn.cursor()
+        
+    cursor.execute(
+        """
+            DELETE FROM students WHERE rollnumber=?
+        """,
+        (rollnumber,)
+    )
+
 
     conn.commit()
     conn.close()
 
-load_all_students("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db")
+delete_student("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",6)
+
+def update_marks(db_path:str, rollnumber:int, marks:list)->None:
+    conn=sqlite3.connect(db_path)
+    cursor=conn.cursor()
+
+    cursor.execute(
+        """
+           UPDATE students SET marks=?   WHERE rollnumber=?
+
+        """, (",".join(str(m) for m in marks),rollnumber)
+
+
+    )
+    conn.commit()
+    conn.close()
+marksup=[78,89,90]
+update_marks("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",1,marksup)
