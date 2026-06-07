@@ -5,13 +5,21 @@ def init_db(db_path:str) ->None:
     conn=sqlite3.connect(db_path)
 
     cursor=conn.cursor()
-
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS classrooms (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE
+        )
+    """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS students(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            rollNumber INTEGER UNIQUE,
-            marks TEXT
+            rollNumber INTEGER,
+            marks TEXT,
+            classroom_id INTEGER,
+            FOREIGN KEY (classroom_id) REFERENCES classrooms(id)
+            UNIQUE (rollnumber, classroom_id)
                 )
     """
     )
@@ -19,35 +27,46 @@ def init_db(db_path:str) ->None:
     conn.commit()
     conn.close()
 
-init_db("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db")
+#init_db("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db")
 
-def save_student(db_path:str,student:Student) ->None:
+def save_classroom(db_path:str,classroom_name:str)->int:
+    conn=sqlite3.connect(db_path)
+    cursor=conn.cursor()
+    cursor.execute(
+        " INSERT OR IGNORE INTO classrooms (name) VALUES(?)",
+        (classroom_name,)
+    )
+    conn.commit()
+    cursor.execute(
+        " SELECT id FROM classrooms WHERE name=?",
+        (classroom_name,)
+    )
+    classroom_id=cursor.fetchone()[0]
+    conn.close()
+    return classroom_id
+
+def save_student(db_path:str,student:Student, classroom_id:int) ->None:
 
     conn=sqlite3.connect(db_path)
     cursor=conn.cursor()
-
-    cursor.execute("INSERT INTO students(name,rollnumber,marks) VALUES (?,?,?)",
-                   (student.name, student.rollnumber, ",".join(str(m) for m in student.getMarks()))
+    marks_str = ",".join(str(m) for m in student.getMarks())
+    cursor.execute("INSERT OR IGNORE INTO students(name,rollnumber,marks, classroom_id) VALUES (?,?,?,?)",
+                   (student.name, student.rollnumber,marks_str,classroom_id)
                    )
     conn.commit()
     conn.close()
 
-s=Student("Rinla9",14)
-s.addMarks(85)
-s.addMarks(90)
-s.addMarks(99)
 
-save_student("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",s)
-
-def load_all_students(db_path:str)->list:
+def load_all_students(db_path:str, classroom_id:int)->list:
 
     conn=sqlite3.connect(db_path)
     cursor=conn.cursor()
 
     cursor.execute(
         """
-            SELECT name, rollnumber, marks FROM students
-        """
+            SELECT name, rollnumber, marks FROM students WHERE classroom_id=?
+        """,
+        (classroom_id,)
     )
     
     rows=cursor.fetchall()
@@ -67,9 +86,9 @@ def load_all_students(db_path:str)->list:
     conn.close()
     return data
 
-data=load_all_students("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db")
-for st in data:
-    print(st.name,st.rollnumber)
+#data=load_all_students("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db")
+#for st in data:
+#    print(st.name,st.rollnumber)
 
 
 def delete_student(db_path:str,rollnumber:int)->None:
@@ -87,7 +106,7 @@ def delete_student(db_path:str,rollnumber:int)->None:
     conn.commit()
     conn.close()
 
-delete_student("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",6)
+#delete_student("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",6)
 
 def update_marks(db_path:str, rollnumber:int, marks:list)->None:
     conn=sqlite3.connect(db_path)
@@ -103,5 +122,15 @@ def update_marks(db_path:str, rollnumber:int, marks:list)->None:
     )
     conn.commit()
     conn.close()
-marksup=[78,89,90]
-update_marks("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",1,marksup)
+#marksup=[78,89,90]
+#update_marks("/Users/radhe/Projects/WebDevPython/OOps1/GradingSystem/storage/classRoom.db",1,marksup)
+
+def get_MaxRollNumber(db_path:str,classroom_id:int)->int:
+    conn=sqlite3.connect(db_path)
+    cursor=conn.cursor()
+
+    cursor.execute(" SELECT MAX(rollnumber) FROM students WHERE classroom_id=?",
+                   (classroom_id,))
+    result=cursor.fetchone()[0]
+    conn.close()
+    return result if result is not None else 0

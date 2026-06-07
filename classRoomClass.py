@@ -1,26 +1,28 @@
 #ClassRoom
 from models.studentClass import Student
 from models.ScholarshipStudentClass import ScholarshipStudent
+from storage.sqlite_storage import get_MaxRollNumber, save_student
+import os
 
 
 class ClassRoom:
-
     def __init__(self,name, students:list):
         self.name=name
         self.__students=students
-    
-    def enroll(self):
-        student=int(input(f"How many students to enroll: "))
-        if student==0:
+
+    def enroll(self,db_path: str, classroom_id: int):
+        count=int(input(f"How many students to enroll: "))
+        if count==0:
             return
-        for _ in range(student):
+        for _ in range(count):
             name=input("Enter student name:")
-            marks=[]
-            student1=Student(name,len(self.__students)+1)
+            rollnumber=get_MaxRollNumber(db_path,classroom_id)+1
+            student1=Student(name,rollnumber)
             for i in range(3):
                 mark=int(input(f"Enter mark of the subject {i+1} : "))
                 while not student1.addMarks(mark):
                     mark=int(input(f"Enter mark of the subject {i+1} : "))
+            save_student(db_path, student1, classroom_id)
             self.__students.append(student1)
         
         
