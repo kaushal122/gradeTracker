@@ -27,7 +27,8 @@ if __name__ == "__main__":
         print("5. Delete a Student")
         print("6. Update Marks")
         print("7 Call Anthropic")
-        print("8. Exit")
+        print("8 chat with AI")
+        print("9. Exit")
 
         choice = input("Enter the Choice:")
 
@@ -77,6 +78,49 @@ if __name__ == "__main__":
                 ]
             )
             print(response.content[0].text)
+
+        elif choice=="8":
+            class1.students = load_all_students(path, classroom_id)
+            summary=f"Class: {class1.name}\n"
+            summary+=f"Total Students: {len(class1.students)} \n"
+            summary+=f"Students: \n"
+            for st in class1.students:
+                summary += f"- {st.name} | {st.getPer} | {st.getGrade} \n"
+            
+            msg_history=[
+                {"role":"user", "content": summary}
+            ]
+
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                temperature=0.4,
+                max_tokens=1024,
+                system="You are an academic performance analyst. When given student data, provide concise insights, identify at-risk students, and suggest specific improvement actions. Give answer only in max 60 words",
+                messages=msg_history
+            )
+        
+            while True:
+                reply=response.content[0].text
+                print(reply)
+                msg_history.append({
+                    "role":"assistant", "content": reply
+                })
+                ques=input("ask next question : ")
+                if ques=="exit":
+                    break
+                msg_history.append({
+                    "role":"user", "content":ques
+                })
+                response=client.messages.create(
+                    model="claude-sonnet-4-6",
+                    temperature=0.4,
+                    max_tokens=1024,
+                    system="You are an academic performance analyst. When given student data, provide concise insights, identify at-risk students, and suggest specific improvement actions.Give answer only in max 60 words",
+                    messages=msg_history
+                    
+                )
+
+
 
         else:
                 break
