@@ -5,9 +5,13 @@ from storage.sqlite_storage import init_db, load_all_students, delete_student, u
 import requests
 from dotenv import load_dotenv
 import os
+import anthropic
+
+
 
 if __name__ == "__main__":
     load_dotenv()
+    client=anthropic.Anthropic()
     path=os.getenv("dbPath")
     init_db(path)
     classroom=input("Enter Class name: ")
@@ -22,7 +26,8 @@ if __name__ == "__main__":
         print("4. Load from DB")
         print("5. Delete a Student")
         print("6. Update Marks")
-        print("7. Exit")
+        print("7 Call Anthropic")
+        print("8. Exit")
 
         choice = input("Enter the Choice:")
 
@@ -53,7 +58,27 @@ if __name__ == "__main__":
             update_marks(path, rn, marks)
 
         elif choice=="7":
-            break
+            class1.students = load_all_students(path, classroom_id)
+            summary=f"Class: {class1.name}\n"
+            summary+=f"Total Students: {len(class1.students)} \n"
+            summary+=f"Students: \n"
+            for st in class1.students:
+                summary += f"- {st.name} | {st.getPer} | {st.getGrade} \n"
+
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=1024,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": summary
+                    }
+                ]
+            )
+            print(response.content[0].text)
+
+        else:
+                break
 
     url="https://official-joke-api.appspot.com/random_joke"
     joke=requests.get(url).json()

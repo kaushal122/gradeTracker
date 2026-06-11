@@ -36,7 +36,7 @@ class Student:
             return "Better Luck Next Time"
         
     def display(self):
-        return(self.name, self.rollnumber, self.getPer, self.getGrade)
+        return f"{self.name} | Roll: {self.rollnumber} | {self.getPer}% | {self.getGrade}"
 
 
 
