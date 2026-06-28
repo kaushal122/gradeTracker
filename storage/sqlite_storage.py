@@ -23,6 +23,20 @@ def init_db(db_path:str) ->None:
                 )
     """
     )
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ai_Analysis(
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   classroom_id INTEGER,
+                   top_performer TEXT,
+                   needs_help TEXT,
+                   class_Average REAL,
+                   olympiad_candidate TEXT,
+                   summary TEXT,
+                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                   FOREIGN KEY (classroom_id) REFERENCES classrooms(id)
+                   )
+                """
+                )
 
     conn.commit()
     conn.close()
@@ -134,3 +148,20 @@ def get_MaxRollNumber(db_path:str,classroom_id:int)->int:
     result=cursor.fetchone()[0]
     conn.close()
     return result if result is not None else 0
+
+
+def save_analysis(dbpath:str, classroom_id:int,parsed:dict)-> None:
+    conn=sqlite3.connect(dbpath)
+    cursor=conn.cursor()
+    
+    cursor.execute(
+        """  INSERT INTO ai_Analysis(classroom_id, top_performer, need_help, class_Average, olympiad_candidate, summary) 
+        Values(?,?,?,?,?,?)
+          
+    """,(classroom_id,parsed["top_performer"]["name"],parsed["needs_help"]["name"],parsed["class_average"], parsed["olympiad_candidate"],parsed["overall_summary"])
+    )
+
+    conn.commit()
+    conn.close()
+
+    return

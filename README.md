@@ -1,62 +1,72 @@
-# Student Grade Tracker
+# Grade Tracker
+A CLI application to manage student grades with SQLite storage and AI-powered insights.
 
-A CLI-based student grading system built with Python OOP and SQLite.
+# Features
+What can it do? List the main things:
 
-## Features
+# Tech stack
 
-- Enroll students with marks across 3 subjects
-- Multiple classrooms with separate student lists
-- Auto-assigned roll numbers (per classroom)
-- View all results, percentages, and grades
-- Find class topper
-- Delete students and update marks
-- Persistent storage with SQLite
-- Scholarship eligibility check (First class = eligible)
-- Random joke on exit
+Python 3.x
+SQLite (sqlite3)
+requests
+python-dotenv
+Anthropic API (coming in Phase 2)
+Enroll students across multiple classrooms
+Track marks, calculate percentage and grade automatically
+Persistent SQLite storage with proper relational schema
+Delete students, update marks
+REST API integration
+(Soon) AI-powered class performance summaries
 
 ## Project Structure
 
-```
-GradingSystem/
+gradeTracker/
 ├── models/
-│   ├── studentClass.py              # Student base class (marks, avg, grade)
-│   └── ScholarshipStudentClass.py   # Scholarship eligibility (inherits Student)
+│   ├── student.py
+│   └── scholarship_student.py
 ├── storage/
-│   ├── sqlite_storage.py            # SQLite CRUD operations
-│   └── jsonStorage.py               # JSON storage (legacy)
-├── classRoomClass.py                # ClassRoom (enroll, topper, results)
-└── cli.py                           # CLI entry point
-```
+│   ├── json_storage.py
+│   └── sqlite_storage.py
+├── classroom.py
+├── cli.py
+├── .env.example
+└── README.md
 
-## Setup
+## Setup and Run
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install python-dotenv requests
-```
+# clone the repo
+git clone https://github.com/kaushal122/gradeTracker.git
+cd gradeTracker
 
-Create a `.env` file:
+# create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Mac/Linux
 
-```
-dbPath=storage/classRoom.db
-```
+# install dependencies
+pip install -r requirements.txt
 
-## Usage
+# create .env file
+cp .env.example .env
+# edit .env and add your DB path
 
-```bash
+# run
 python cli.py
-```
 
-### Menu Options
 
-1. **Enroll Students** - Add students with marks for 3 subjects
-2. **Show All Results** - Display name, roll number, percentage, and grade
-3. **Show Topper** - Display the student with highest percentage
-4. **Load from DB** - Refresh student data from database
-5. **Delete a Student** - Remove a student by roll number
-6. **Update Marks** - Update marks for a student by roll number
-7. **Exit** - Exit with a random joke
+# Environment Variabe
+dbPath=./storage/classRoom.db
+
+
+# What I learned (optional but impressive for recruiters)
+
+OOP design with inheritance and properties
+Multi-file Python project structure
+SQLite relational schema with foreign keys and composite unique constraints
+REST API integration with requests library
+Secure API key management with dotenv
+
+
+
 
 ## Grading Scale
 

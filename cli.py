@@ -1,12 +1,12 @@
 from models.studentClass import Student
 from models.ScholarshipStudentClass import ScholarshipStudent
 from classRoomClass import ClassRoom
-from storage.sqlite_storage import init_db, load_all_students, delete_student, update_marks, save_classroom
+from storage.sqlite_storage import init_db, load_all_students, delete_student, update_marks, save_classroom, save_analysis
 import requests
 from dotenv import load_dotenv
 import os
 import anthropic
-
+import json
 
 
 if __name__ == "__main__":
@@ -28,7 +28,8 @@ if __name__ == "__main__":
         print("6. Update Marks")
         print("7 Call Anthropic")
         print("8 chat with AI")
-        print("9. Exit")
+        print("9: Get JSON Analysis")
+        print("10. Exit")
 
         choice = input("Enter the Choice:")
 
@@ -121,8 +122,66 @@ if __name__ == "__main__":
                 )
 
 
+        elif choice=="9":
+            class1.students = load_all_students(path, classroom_id)
+            summary=f"Class: {class1.name}\n"
+            summary+=f"Total Students: {len(class1.students)} \n"
+            summary+=f"Students: \n"
+            for st in class1.students:
+                summary += f"- {st.name} | {st.getPer} | {st.getGrade} \n"
 
-        else:
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=1024,
+                system="""You are an academic performance analyser.
+                            Always respond in valid JSON only.
+                            No markdown, no explanation, no extra text.
+                           Just raw JSON.""",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"""
+                                                <data>
+                                                {summary}
+                                                </data>
+
+                                                <task>
+                                                Analyse the class and return JSON in exactly this format:
+                                                {{
+                                                    "top_performer": {{"name": "", "percentage": 0}},
+                                                    "needs_help": {{"name": "", "percentage": 0}},
+                                                    "class_average": 0,
+                                                    "olympiad_candidate": "",
+                                                    "overall_summary": ""
+                                                }}
+                                                </task>
+                                                """
+                    }
+                ]
+
+            )  
+            #print(response.content[0].text)        
+            raw = response.content[0].text.strip()
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+                raw = raw.strip()
+                
+            print("Raw:", raw)
+            
+            parsed=json.loads(raw)
+            save_analysis(path,classroom_id,parsed)
+            try:
+                print("Top Performer: ",parsed["top_performer"]["name"])
+                print("Top performer:", parsed["top_performer"]["name"])
+                print("Needs help:", parsed["needs_help"]["name"])
+                print("Class average:", parsed["class_average"])
+                print("Olympiad candidate:", parsed["olympiad_candidate"])
+            except json.JSONDecodeError as e:
+                print(f"Parse failed: {e}")
+                print("Raw was:", raw)
+            else:
                 break
 
     url="https://official-joke-api.appspot.com/random_joke"
