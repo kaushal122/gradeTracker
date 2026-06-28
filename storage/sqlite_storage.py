@@ -165,3 +165,27 @@ def save_analysis(dbpath:str, classroom_id:int,parsed:dict)-> None:
     conn.close()
 
     return
+
+def get_all_students_tool(db_path:str, classroom_id:int) -> list:
+    students = load_all_students(db_path, classroom_id)
+    return [
+        {
+            "name":st.name, "rollnumber": st.rollnumber,
+            "percentage":st.getPer, "grade": st.getGrade
+        }
+        for st in students
+    ]
+
+def get_topper_tool(db_path:str, classroom_id:int)-> dict:
+    students= load_all_students(db_path, classroom_id)
+    if not students:
+        return {"error" : "No student found"}
+    topper=max(students,key=lambda st:st.getPer)
+    return {"name": topper.name, "percentage":topper.getPer}
+
+def get_class_average_tool(db_path: str, classroom_id: int) -> dict:
+    students = load_all_students(db_path, classroom_id)
+    if not students:
+        return {"error": "No students found"}
+    avg = sum(st.getPer for st in students) / len(students)
+    return {"class_average": round(avg, 2)}

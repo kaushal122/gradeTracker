@@ -1,12 +1,13 @@
 from models.studentClass import Student
 from models.ScholarshipStudentClass import ScholarshipStudent
 from classRoomClass import ClassRoom
-from storage.sqlite_storage import init_db, load_all_students, delete_student, update_marks, save_classroom, save_analysis
+from storage.sqlite_storage import init_db, load_all_students, delete_student, update_marks, save_classroom, save_analysis, get_all_students_tool, get_class_average_tool, get_topper_tool
 import requests
 from dotenv import load_dotenv
 import os
 import anthropic
 import json
+from tools import tools
 
 
 if __name__ == "__main__":
@@ -29,7 +30,8 @@ if __name__ == "__main__":
         print("7 Call Anthropic")
         print("8 chat with AI")
         print("9: Get JSON Analysis")
-        print("10. Exit")
+        print("10: Ask any question to claude about class")
+        print("11. Exit")
 
         choice = input("Enter the Choice:")
 
@@ -181,8 +183,57 @@ if __name__ == "__main__":
             except json.JSONDecodeError as e:
                 print(f"Parse failed: {e}")
                 print("Raw was:", raw)
-            else:
-                break
+
+        elif choice=="10":
+            
+            while True:
+                question=input("Ask Claude anything about your class:")
+                if question.lower() == "exit":
+                    break
+                messages=[{"role": "user", "content":question}]
+ 
+                while True:
+                    response= client.messages.create(
+                            model="claude-sonnet-4-6",
+                            max_tokens=1024,
+                            system=f"You are a grade tracker assistant. The current classroom_id is {classroom_id}. Always use this classroom_id when calling tools.",
+                            tools=tools,
+                            messages=messages
+                        )
+                    if response.stop_reason=="end_turn":
+                        print("\n Claude: ", response.content[0].text)
+                        break
+
+                    elif response.stop_reason=="tool_use":
+                        
+                        for block in response.content:
+                            if block.type=="tool_use":
+                                tool_name=block.name
+                                tool_input=block.input
+                                print(f"\nClaude is calling: {tool_name}({tool_input})")
+
+                                if tool_name=="get_all_students":
+                                    result=get_all_students_tool(path,tool_input["classroom_id"])
+                                elif tool_name == "get_topper":
+                                    result = get_topper_tool(path, tool_input["classroom_id"])
+                                elif tool_name == "get_class_average":
+                                    result = get_class_average_tool(path, tool_input["classroom_id"])
+                                else:
+                                    result = {"error": "Unknown tool"}
+                                
+                                messages.append({"role":"assistant", "content":response.content })
+                                messages.append({
+                                    "role": "user",
+                                    "content": [
+                                        {
+                                            "type": "tool_result",
+                                            "tool_use_id": block.id,
+                                            "content": json.dumps(result)
+                                        }
+                                    ]
+                                })                           
+        else:
+            break
 
     url="https://official-joke-api.appspot.com/random_joke"
     joke=requests.get(url).json()
